@@ -20,6 +20,7 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
+from multiprocessing.connection import answer_challenge
 import config as cf
 import sys
 import controller
@@ -110,13 +111,33 @@ def printBooksbyYear(answer):
         print("No se encontraron libros.\n")
 
 
-def printBestBooks(books):
+def printBestBooks(answer):
     """
     Imprime la información de los mejores libros
     por promedio
     """
     # TODO: lab 7, completar la impresión de ranking de libros
-    pass
+    if isinstance(answer, (list, tuple)) is True:
+        if len(answer) == 2:
+            books = answer[0]
+            time = answer[1]
+            print("Tiempo [ms]: ", f"{time:.3f}")
+        elif len(answer) == 3:
+            books = answer[0]
+            time = answer[1]
+            memory = answer[2]
+            print('Tiempo [ms]: ', f"{time:.3f}", '||',
+                  'Memoria [kB]: ', f"{memory:.3f}")
+        size = lt.size(books)
+        if size:
+            print(' Estos son los mejores libros: ')
+            for book in lt.iterator(books):
+                print('Titulo:', book['title'],
+                      'ISBN:', book['isbn'],
+                      'Rating:', book['average_rating'])
+            print("\n")
+    else:
+        print("No se encontraron libros.\n")
 
 
 def printLoadDataAnswer(answer):
@@ -218,7 +239,15 @@ while True:
 
     elif int(inputs[0]) == 6:
         # TODO lab 7, completar cambios para imprimir respuesta
-        pass
+        number = input("Buscando libros del año?: ")
+        rank = input("Cuantos libros en el escalafón? (mayor a 0):")
+        number = input(number)
+        rank = int(rank)
+        print("Desea observar el uso de memoria? (True/False)")
+        mem = input("Respuesta: ")
+        mem = castBoolean(mem)
+        answer= controller.sortBooksByYear(control, number, rank, memflag=mem)
+        printBestBooks(answer)
 
     elif int(inputs[0]) == 0:
         break
